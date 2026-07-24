@@ -1,0 +1,63 @@
+/* ═══════════════════════════════════════════
+   APP.CSS ADDITIONS — paste at bottom of app.css
+═══════════════════════════════════════════ */
+
+/* ── ELECTRON TITLEBAR ── */
+.electron-titlebar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 32px;
+  background: rgba(15,15,19,0.98);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  z-index: 9999;
+  -webkit-app-region: drag;
+}
+.etb-drag {
+  display: flex; align-items: center; gap: 8px;
+  -webkit-app-region: drag;
+}
+.etb-skull { font-size: 14px; color: var(--accent); }
+.etb-title {
+  font-family: 'Cinzel', serif;
+  font-size: 10px; letter-spacing: 3px;
+  color: rgba(255,255,255,0.2);
+}
+.etb-controls {
+  display: flex; gap: 2px;
+  -webkit-app-region: no-drag;
+}
+.etb-controls button {
+  width: 30px; height: 24px;
+  background: transparent; border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer; border-radius: 4px;
+  font-size: 12px; transition: all 0.15s;
+}
+.etb-controls button:hover {
+  background: rgba(255,255,255,0.1); color: #fff;
+}
+.etb-close:hover {
+  background: #8B1A1A !important; color: #fff !important;
+}
+
+/* Push everything down for titlebar */
+.navbar { margin-top: 32px; }
+
+/* ── SIDEBAR LOGOUT BUTTON AT BOTTOM ── */
+.sb-bottom { margin-top: auto; }
+
+/* ── SCHEDULE SUB NOTE ── */
+.card-sub-note {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ── KB BADGE COLORS ── */
+.kb-bd         { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 5px; flex-shrink: 0; }
+.kb-bd.loaded  { background: rgba(48,184,96,0.14); color: #40d070; }
+.kb-bd.empty   { background: rgba(255,255,255,0.05); color: var(--muted); }
