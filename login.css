@@ -1,0 +1,392 @@
+/* ═══════════════════════════════════════════
+   LOGIN.CSS — Straw Hat Agent v2
+═══════════════════════════════════════════ */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold:        #c8900a;
+  --gold-bright: #e8b020;
+  --text:        #e0e0f0;
+  --muted:       #6070a0;
+  --dim:         #3a4060;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #020508;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  padding-top: 32px; /* space for titlebar */
+}
+
+/* ── ELECTRON TITLEBAR ── */
+.electron-titlebar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 32px;
+  background: rgba(2,4,12,0.98);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  z-index: 9999;
+  -webkit-app-region: drag;
+}
+.etb-drag {
+  display: flex; align-items: center; gap: 8px;
+  -webkit-app-region: drag;
+}
+.etb-skull { font-size: 14px; color: var(--gold); }
+.etb-title {
+  font-family: 'Cinzel', serif;
+  font-size: 10px; letter-spacing: 3px;
+  color: rgba(255,255,255,0.25);
+}
+.etb-controls {
+  display: flex; gap: 2px;
+  -webkit-app-region: no-drag;
+}
+.etb-controls button {
+  width: 30px; height: 24px;
+  background: transparent; border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer; border-radius: 4px;
+  font-size: 12px; transition: all 0.15s;
+}
+.etb-controls button:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.etb-close:hover {
+  background: #8B1A1A !important;
+  color: #fff !important;
+}
+
+/* ── STORM CANVAS ── */
+#storm-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── LIGHTNING FLASH ── */
+#lightning-flash {
+  position: fixed; inset: 0; z-index: 4;
+  background: rgba(160,200,255,0.15);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.05s;
+}
+
+/* ── WHITEBEARD FIGURE ── */
+/* Change 1: moved down by increasing bottom offset and reducing height */
+.wb-figure {
+  position: fixed;
+  left: 0;
+  bottom: 20px;        /* ← was 80px, now lower */
+  width: 50%;
+  height: 88vh;        /* ← was 92vh, slightly less so more sits at bottom */
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.wb-figure img {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: bottom right;
+  display: block;
+  position: relative;
+  z-index: 11;
+  filter:
+    drop-shadow(-6px 0 30px rgba(200,144,10,0.2))
+    drop-shadow(0 0 60px rgba(60,80,160,0.15));
+  animation: wb-sway 7s ease-in-out infinite;
+  /* Push image down so feet are at very bottom */
+  transform-origin: bottom center;
+  margin-bottom: -20px;  /* ← pulls image further down */
+}
+@keyframes wb-sway {
+  0%, 100% { transform: translateY(0)   rotate(0deg);    }
+  35%       { transform: translateY(-4px) rotate(0.2deg); }
+  70%       { transform: translateY(-2px) rotate(-0.15deg); }
+}
+
+/* ── DIALOGUE OVERLAY ── */
+/* Change 3: Full screen dialogue before login UI appears */
+.dialogue-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 40px 52px;
+  pointer-events: all;
+  transition: opacity 0.8s;
+}
+
+.dialogue-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dialogue-box {
+  width: 42%;
+  min-width: 360px;
+  background: linear-gradient(
+    270deg,
+    rgba(2,4,12,0.96) 0%,
+    rgba(3,6,16,0.85) 55%,
+    rgba(2,5,14,0.0)  100%
+  );
+  padding: 32px 52px 32px 32px;
+  position: relative;
+}
+
+.dialogue-speaker {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.dialogue-text {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #c8d0e8;
+  line-height: 2.0;
+  letter-spacing: 0.3px;
+  min-height: 200px;
+  /* Typewriter cursor effect */
+  border-right: 2px solid var(--gold);
+  animation: cursor-blink 0.8s step-end infinite;
+}
+
+.dialogue-text.done {
+  border-right: none;
+  animation: none;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { border-color: var(--gold); }
+  50%       { border-color: transparent; }
+}
+
+.dialogue-skip {
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-align: right;
+}
+.dialogue-skip:hover { color: var(--gold); }
+
+/* ── LOGIN UI ── */
+.login-ui {
+  position: fixed;
+  right: 0; top: 32px; bottom: 0;
+  width: 42%;
+  min-width: 360px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0 52px;
+  gap: 22px;
+  background: linear-gradient(
+    270deg,
+    rgba(2,4,12,0.94) 0%,
+    rgba(3,6,16,0.80) 55%,
+    rgba(2,5,14,0.0)  100%
+  );
+  transition: opacity 0.8s;
+}
+
+/* Brand */
+.brand-wrap { display: flex; align-items: center; gap: 16px; }
+.brand-skull {
+  font-size: 34px;
+  animation: skull-pulse 3s ease-in-out infinite;
+}
+@keyframes skull-pulse {
+  0%,100% { filter: drop-shadow(0 0 8px  rgba(200,144,10,0.5)); }
+  50%      { filter: drop-shadow(0 0 20px rgba(200,144,10,0.95)); }
+}
+.brand-title {
+  font-family: 'Cinzel', serif;
+  font-size: 25px; font-weight: 900;
+  letter-spacing: 5px;
+  color: var(--gold-bright);
+  line-height: 1;
+  text-shadow: 0 0 28px rgba(200,144,10,0.45);
+}
+.brand-sub {
+  font-size: 9px; letter-spacing: 3px;
+  color: var(--muted); text-transform: uppercase;
+  margin-top: 5px;
+}
+
+/* Speech */
+.wb-speech {
+  display: flex; align-items: flex-start;
+  gap: 6px; padding-left: 2px;
+}
+.speech-mark {
+  font-family: 'Cinzel', serif;
+  font-size: 50px; line-height: 0.65;
+  color: var(--gold); opacity: 0.35;
+  font-weight: 900; flex-shrink: 0;
+}
+.speech-mark.closing { align-self: flex-end; }
+.speech-text {
+  font-family: 'Cinzel', serif;
+  font-size: 14px; font-weight: 400;
+  color: #bac4e0; line-height: 1.85;
+  letter-spacing: 0.3px; min-height: 54px;
+  transition: opacity 0.2s;
+}
+.speech-text em { color: var(--gold-bright); font-style: normal; font-weight: 700; }
+
+/* Divider */
+.section-divider { display: flex; align-items: center; gap: 10px; width: 100%; }
+.div-line  { flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+.div-skull { font-size: 12px; color: var(--dim); }
+
+/* Mic */
+.voice-auth {
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 10px;
+}
+.mic-outer {
+  position: relative; width: 70px; height: 70px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.mic-ring {
+  position: absolute; border-radius: 50%;
+  border: 1.5px solid rgba(200,144,10,0.22);
+  transition: all 0.3s;
+}
+.ring-1 { inset: 0; }
+.ring-2 { inset: 9px; border-color: rgba(200,144,10,0.12); }
+.mic-outer:hover .ring-1 { border-color: rgba(200,144,10,0.5); transform: scale(1.06); }
+.mic-outer:hover .ring-2 { border-color: rgba(200,144,10,0.28); }
+.mic-outer.active .ring-1 { border-color: var(--gold-bright); animation: ring-pulse 1.2s ease-in-out infinite; }
+.mic-outer.active .ring-2 { border-color: rgba(200,144,10,0.45); animation: ring-pulse 1.2s ease-in-out infinite 0.3s; }
+@keyframes ring-pulse {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.14); opacity: 0.55; }
+}
+.mic-core {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: rgba(200,144,10,0.09);
+  border: 1.5px solid rgba(200,144,10,0.32);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21px; transition: all 0.2s; position: relative; z-index: 1;
+}
+.mic-outer:hover .mic-core  { background: rgba(200,144,10,0.18); border-color: rgba(200,144,10,0.6); }
+.mic-outer.active .mic-core { background: rgba(200,144,10,0.22); border-color: var(--gold-bright); box-shadow: 0 0 18px rgba(200,144,10,0.38); }
+.voice-label { font-size: 10px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; font-weight: 500; }
+.voice-sub   { font-size: 11px; color: var(--muted); margin-top: -6px; }
+
+/* OR row */
+.or-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+.or-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+.or-text { font-size: 11px; color: var(--dim); letter-spacing: 1px; }
+
+/* Change 4: Text password input */
+.text-pw-wrap {
+  display: flex; gap: 8px; width: 100%;
+}
+.text-pw-input {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(200,144,10,0.25);
+  border-radius: 5px;
+  padding: 11px 16px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+  letter-spacing: 2px;
+}
+.text-pw-input:focus {
+  border-color: rgba(200,144,10,0.6);
+  background: rgba(255,255,255,0.06);
+}
+.text-pw-input::placeholder {
+  color: var(--dim);
+  letter-spacing: 0px;
+  font-size: 12px;
+}
+.text-pw-btn {
+  width: 42px;
+  background: rgba(200,144,10,0.15);
+  border: 1px solid rgba(200,144,10,0.4);
+  border-radius: 5px;
+  color: var(--gold-bright);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.text-pw-btn:hover {
+  background: rgba(200,144,10,0.28);
+  border-color: var(--gold);
+}
+
+/* Board button */
+.board-btn {
+  display: flex; align-items: center; gap: 14px;
+  background: transparent;
+  border: 1.5px solid rgba(200,144,10,0.38);
+  border-radius: 5px;
+  padding: 13px 26px;
+  cursor: pointer; transition: all 0.25s;
+  width: 100%; position: relative; overflow: hidden;
+}
+.board-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(200,144,10,0.07), transparent);
+  opacity: 0; transition: opacity 0.25s;
+}
+.board-btn:hover::before { opacity: 1; }
+.board-btn:hover {
+  border-color: rgba(200,144,10,0.68);
+  box-shadow: 0 0 22px rgba(200,144,10,0.18);
+}
+.board-btn:active { transform: scale(0.98); }
+.btn-icon { font-size: 19px; }
+.btn-text {
+  font-family: 'Cinzel', serif;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 3px; color: var(--gold-bright); flex: 1;
+}
+.btn-arrow { font-size: 17px; color: var(--gold); opacity: 0.55; transition: transform 0.2s, opacity 0.2s; }
+.board-btn:hover .btn-arrow { transform: translateX(5px); opacity: 1; }
+
+/* Footer */
+.auth-footer { font-size: 11px; color: var(--dim); letter-spacing: 1px; }
+
+/* Shake animation */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
+.shake { animation: shake 0.4s ease; }
