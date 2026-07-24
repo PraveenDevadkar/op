@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Straw Hat Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+
+<!-- ══ ELECTRON TITLEBAR ══ -->
+<div class="electron-titlebar">
+  <div class="etb-drag">
+    <span class="etb-skull">☠</span>
+    <span class="etb-title">STRAW HAT AGENT</span>
+  </div>
+  <div class="etb-controls">
+    <button onclick="window.electronAPI && electronAPI.minimize()">─</button>
+    <button onclick="window.electronAPI && electronAPI.maximize()">□</button>
+    <button class="etb-close" onclick="window.electronAPI && electronAPI.close()">✕</button>
+  </div>
+</div>
+
+<!-- ══ TOP NAVBAR ══ -->
+<div class="navbar">
+  <div class="nav-left">
+    <div class="nav-logo">☠</div>
+    <div class="nav-title">Straw Hat Agent</div>
+  </div>
+  <div class="nav-center">
+    <div class="nav-date" id="nav-date">Loading...</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-icon" title="Notifications">🔔</div>
+    <div class="nav-icon" title="Search">🔍</div>
+    <div class="nav-icon" title="Logout" onclick="logout()" style="cursor:pointer;">🚪</div>
+  </div>
+</div>
+
+<!-- ══ BODY ══ -->
+<div class="app-body">
+
+  <!-- ── Left Sidebar — 4 icons only ── -->
+  <div class="sidebar">
+    <div class="sb-icon active" id="sbi-dashboard" onclick="switchView('dashboard')" title="Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </div>
+    <div class="sb-icon" id="sbi-chat" onclick="switchView('chat')" title="Chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    </div>
+    <div class="sb-icon" id="sbi-schedule" onclick="switchView('schedule')" title="Schedule">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    </div>
+    <div class="sb-icon" id="sbi-goals" onclick="switchView('goals')" title="Goals">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    </div>
+    <div class="sb-divider"></div>
+    <!-- Logout at bottom -->
+    <div class="sb-icon sb-bottom" id="sbi-logout" onclick="logout()" title="Logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── Main Content ── -->
+  <div class="main">
+
+    <!-- Greeting banner -->
+    <div class="greeting-bar" id="greeting-bar">
+      <div class="greeting-avatar" id="greeting-avatar">☠</div>
+      <div class="greeting-text">
+        <div class="greeting-title" id="greeting-title">Good morning, Nakama!</div>
+        <div class="greeting-sub"  id="greeting-sub">Loading your morning briefing...</div>
+      </div>
+      <div class="greeting-time" id="greeting-time">--:--:--</div>
+    </div>
+
+    <!-- Tabs — 4 only -->
+    <div class="tabs-row">
+      <div class="tab active" id="tab-dashboard" onclick="switchTab('dashboard')">Dashboard</div>
+      <div class="tab"        id="tab-chat"      onclick="switchTab('chat')">Chat</div>
+      <div class="tab"        id="tab-schedule"  onclick="switchTab('schedule')">Schedule</div>
+      <div class="tab"        id="tab-goals"     onclick="switchTab('goals')">Goals</div>
+    </div>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="view active" id="view-dashboard">
+
+      <!-- YOUR CREW -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">YOUR CREW</span>
+          <span class="card-icon-btn">👥</span>
+        </div>
+        <div class="crew-grid" id="crew-grid"></div>
+      </div>
+
+      <!-- TWO COLUMN ROW -->
+      <div class="two-col">
+
+        <!-- TODAY AT A GLANCE -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">TODAY AT A GLANCE</span>
+            <span class="card-icon-btn">📅</span>
+          </div>
+          <div class="glance-list" id="glance-list">
+            <div class="glance-row">
+              <span class="gl-dot" style="background:#30b860"></span>
+              <span class="gl-time">9:00</span>
+              <span class="gl-task">DSA practice</span>
+              <span class="gl-crew" style="color:#30b860">Zoro</span>
+            </div>
+            <div class="glance-row">
+              <span class="gl-dot" style="background:#6060e8"></span>
+              <span class="gl-time">12:30</span>
+              <span class="gl-task">Lunch — high protein</span>
+              <span class="gl-crew" style="color:#6060e8">Sanji</span>
+            </div>
+            <div class="glance-row">
+              <span class="gl-dot" style="background:#a060e8"></span>
+              <span class="gl-time">15:00</span>
+              <span class="gl-task">Research session</span>
+              <span class="gl-crew" style="color:#a060e8">Robin</span>
+            </div>
+            <div class="glance-row">
+              <span class="gl-dot" style="background:#2080c8"></span>
+              <span class="gl-time">20:00</span>
+              <span class="gl-task">Evening review</span>
+              <span class="gl-crew" style="color:#2080c8">Jinbe</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- YOUR STATS -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">YOUR STATS</span>
+            <span class="card-icon-btn">📊</span>
+          </div>
+          <div class="stats-nums">
+            <div class="stat-num">
+              <div class="sn-val" id="stat-streak">0</div>
+              <div class="sn-lbl">Day streak</div>
+            </div>
+            <div class="stat-num">
+              <div class="sn-val" id="stat-tasks" style="color:#e8a020">0</div>
+              <div class="sn-lbl">Chats today</div>
+            </div>
+            <div class="stat-num">
+              <div class="sn-val" id="stat-crew" style="color:#a060e8">10</div>
+              <div class="sn-lbl">Crew active</div>
+            </div>
+          </div>
+          <!-- Skill bars — placeholder until RAG connects -->
+          <div class="skill-bars">
+            <div class="sk-row">
+              <div class="sk-name">Docker mastery</div>
+              <div class="sk-pct">65%</div>
+            </div>
+            <div class="sk-bar">
+              <div class="sk-fill" style="width:65%;background:#30b860"></div>
+            </div>
+            <div class="sk-row" style="margin-top:10px">
+              <div class="sk-name">System design</div>
+              <div class="sk-pct">40%</div>
+            </div>
+            <div class="sk-bar">
+              <div class="sk-fill" style="width:40%;background:#e8a020"></div>
+            </div>
+            <div class="sk-row" style="margin-top:10px">
+              <div class="sk-name">Portfolio site</div>
+              <div class="sk-pct">20%</div>
+            </div>
+            <div class="sk-bar">
+              <div class="sk-fill" style="width:20%;background:#a060e8"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /two-col -->
+
+      <!-- QUICK ACTIONS -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">QUICK ACTIONS</span>
+        </div>
+        <div class="qa-grid">
+          <div class="qa-btn" onclick="quickAction('chat','luffy')">
+            <span class="qa-av" style="background:#1a0808;border-color:#e83030">☠</span>
+            <span>Chat with crew</span>
+          </div>
+          <div class="qa-btn" onclick="quickAction('schedule','jinbe')">
+            <span class="qa-av" style="background:#08121a;border-color:#2080c8">🌊</span>
+            <span>Today's schedule</span>
+          </div>
+          <div class="qa-btn" onclick="quickAction('goals','zoro')">
+            <span class="qa-av" style="background:#081408;border-color:#30b860">⚔</span>
+            <span>Skill tracker</span>
+          </div>
+          <div class="qa-btn" onclick="quickAction('chat','chopper')">
+            <span class="qa-av" style="background:#1a0810;border-color:#e83070">🩺</span>
+            <span>Health check</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dashboard -->
+
+    <!-- ══ CHAT ══ -->
+    <div class="view" id="view-chat">
+
+      <!-- Left: messages -->
+      <div class="chat-left">
+        <div class="card chat-card">
+          <div class="chat-crew-strip" id="chat-crew-strip"></div>
+          <div class="chat-msgs" id="chat-msgs">
+            <!-- Initial message added by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: floating character panel -->
+      <div class="chat-char-float" id="chat-char-float">
+        <div class="ccf-glow"  id="ccf-glow"></div>
+        <div class="ccf-img"   id="ccf-img">
+          <div class="ccf-emoji" id="ccf-emoji">☠</div>
+        </div>
+        <div class="ccf-name" id="ccf-name">LUFFY</div>
+      </div>
+
+    </div>
+
+    <!-- ══ SCHEDULE ══ -->
+    <div class="view" id="view-schedule">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">TODAY'S VOYAGE PLAN</span>
+          <span class="card-sub-note">Ask Jinbe to update this for you</span>
+        </div>
+        <div class="sched-list">
+          <div class="sched-row">
+            <span class="sr-time">06:30</span>
+            <span class="sr-dot" style="background:#e83070"></span>
+            <span class="sr-task">Wake up + morning routine</span>
+            <span class="sr-crew" style="color:#e83070">Chopper</span>
+          </div>
+          <div class="sched-row">
+            <span class="sr-time">07:00</span>
+            <span class="sr-dot" style="background:#6060e8"></span>
+            <span class="sr-task">Breakfast & nutrition check</span>
+            <span class="sr-crew" style="color:#6060e8">Sanji</span>
+          </div>
+          <div class="sched-row">
+            <span class="sr-time">08:00</span>
+            <span class="sr-dot" style="background:#30b860"></span>
+            <span class="sr-task">DSA practice — Binary Trees</span>
+            <span class="sr-crew" style="color:#30b860">Zoro</span>
+          </div>
+          <div class="sched-row">
+            <span class="sr-time">10:00</span>
+            <span class="sr-dot" style="background:#2080c8"></span>
+            <span class="sr-task">Deep work block 🔒</span>
+            <span class="sr-crew" style="color:#2080c8">Jinbe</span>
+          </div>
+          <div class="sched-row">
+            <span class="sr-time">12:30</span>
+            <span class="sr-dot" style="background:#6060e8"></span>
+            <span class="sr-task">Lunch break</span>
+            <span class="sr-crew" style="color:#6060e8">Sanji</span>
+          </div>
+          <div class="sched-row">
+            <span class="sr-time">14:00</span>
+            <span class="sr-dot" style="background:#a060e8"></span>
+            <span class="sr-task">Research session</span>
+            <span class="sr-crew" style="color:#a060e8">Robin</span>
+          </div>
+          <div class="sched-row">
+            <span class="sr-time">16:00</span>
+            <span class="sr-dot" style="background:#c87820"></span>
+            <span class="sr-task">Side project — portfolio</span>
+            <span class="sr-crew" style="color:#c87820">Usopp</span>
+          </div>
+          <div class="sched-row">
+            <span class="sr-time">18:00</span>
+            <span class="sr-dot" style="background:#e83070"></span>
+            <span class="sr-task">Workout + evening walk</span>
+            <span class="sr-crew" style="color:#e83070">Chopper</span>
+          </div>
+          <div class="sched-row">
+            <span class="sr-time">20:00</span>
+            <span class="sr-dot" style="background:#b0b0d8"></span>
+            <span class="sr-task">Chill — music or movie</span>
+            <span class="sr-crew" style="color:#b0b0d8">Brook</span>
+          </div>
+          <div class="sched-row">
+            <span class="sr-time">22:00</span>
+            <span class="sr-dot" style="background:#2080c8"></span>
+            <span class="sr-task">Daily review & tomorrow's plan</span>
+            <span class="sr-crew" style="color:#2080c8">Jinbe</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ GOALS ══ -->
+    <div class="view" id="view-goals">
+      <div class="two-col">
+
+        <!-- SKILL TRACKER -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">SKILL TRACKER</span>
+            <span class="card-icon-btn">⚔</span>
+          </div>
+          <div class="skill-bars" style="margin-top:4px">
+            <div class="sk-row">
+              <div class="sk-name">Data Structures & Algorithms</div>
+              <div class="sk-pct">68%</div>
+            </div>
+            <div class="sk-bar">
+              <div class="sk-fill" style="width:68%;background:#30b860"></div>
+            </div>
+            <div class="sk-row" style="margin-top:12px">
+              <div class="sk-name">System Design</div>
+              <div class="sk-pct">40%</div>
+            </div>
+            <div class="sk-bar">
+              <div class="sk-fill" style="width:40%;background:#e8a020"></div>
+            </div>
+            <div class="sk-row" style="margin-top:12px">
+              <div class="sk-name">Python / FastAPI</div>
+              <div class="sk-pct">75%</div>
+            </div>
+            <div class="sk-bar">
+              <div class="sk-fill" style="width:75%;background:#e83030"></div>
+            </div>
+            <div class="sk-row" style="margin-top:12px">
+              <div class="sk-name">JavaScript / Electron</div>
+              <div class="sk-pct">55%</div>
+            </div>
+            <div class="sk-bar">
+              <div class="sk-fill" style="width:55%;background:#6060e8"></div>
+            </div>
+            <div class="sk-row" style="margin-top:12px">
+              <div class="sk-name">Machine Learning</div>
+              <div class="sk-pct">30%</div>
+            </div>
+            <div class="sk-bar">
+              <div class="sk-fill" style="width:30%;background:#a060e8"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAREER GOALS + KNOWLEDGE STATUS -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">CAREER GOALS</span>
+            <span class="card-icon-btn">🎯</span>
+          </div>
+          <div class="goal-text">
+            Target: SWE role at a product company by Q1 2026.
+            Practicing DSA daily, building portfolio projects,
+            studying system design. Three mock interviews scheduled this month.
+          </div>
+
+          <div class="card-header" style="margin-top:20px">
+            <span class="card-label">KNOWLEDGE BASE</span>
+            <span class="card-icon-btn">📚</span>
+          </div>
+          <div class="kb-mini" id="kb-status">
+            <div class="kb-row">
+              <span class="kb-ic">👤</span>
+              <span class="kb-nm">about_me.md</span>
+              <span class="kb-bd" id="kb-about">Checking...</span>
+            </div>
+            <div class="kb-row">
+              <span class="kb-ic">🎯</span>
+              <span class="kb-nm">career_goals.md</span>
+              <span class="kb-bd" id="kb-career">Checking...</span>
+            </div>
+            <div class="kb-row">
+              <span class="kb-ic">⚔</span>
+              <span class="kb-nm">skills.md</span>
+              <span class="kb-bd" id="kb-skills">Checking...</span>
+            </div>
+            <div class="kb-row">
+              <span class="kb-ic">📅</span>
+              <span class="kb-nm">schedule.md</span>
+              <span class="kb-bd" id="kb-schedule">Checking...</span>
+            </div>
+            <div class="kb-row">
+              <span class="kb-ic">🩺</span>
+              <span class="kb-nm">health_notes.md</span>
+              <span class="kb-bd" id="kb-health">Checking...</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app-body -->
+
+<!-- ══ BOTTOM INPUT BAR ══ -->
+<div class="input-bar">
+  <div class="ib-mic" onclick="ibMic()" title="Voice input">🎤</div>
+  <input
+    class="ib-input"
+    id="ib-input"
+    type="text"
+    placeholder="Ask anything — auto-routed to the right crew member..."
+    onkeydown="ibKey(event)"
+  >
+  <button class="ib-send" id="ib-send" onclick="ibSend()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <line x1="22" y1="2" x2="11" y2="13"/>
+      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    </svg>
+  </button>
+</div>
+
+<script src="../js/app.js"></script>
+</body>
+</html>
