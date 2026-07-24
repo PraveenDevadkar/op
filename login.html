@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Straw Hat Agent — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+
+<!-- ══ ELECTRON TITLEBAR ══ -->
+<div class="electron-titlebar">
+  <div class="etb-drag">
+    <span class="etb-skull">☠</span>
+    <span class="etb-title">STRAW HAT AGENT</span>
+  </div>
+  <div class="etb-controls">
+    <button onclick="window.electronAPI && electronAPI.minimize()">─</button>
+    <button onclick="window.electronAPI && electronAPI.maximize()">□</button>
+    <button class="etb-close" onclick="window.electronAPI && electronAPI.close()">✕</button>
+  </div>
+</div>
+
+<!-- ══ STORM CANVAS ══ -->
+<canvas id="storm-canvas"></canvas>
+<div id="lightning-flash"></div>
+
+<!-- ══ WHITEBEARD FIGURE ══ -->
+<div class="wb-figure" id="wb-figure">
+  <img src="../assets/white.png" alt="Whitebeard">
+</div>
+
+<!-- ══ DIALOGUE OVERLAY ══ -->
+<div class="dialogue-overlay" id="dialogue-overlay">
+  <div class="dialogue-box" id="dialogue-box">
+    <div class="dialogue-speaker">— Edward Newgate · Whitebeard —</div>
+    <div class="dialogue-text" id="dialogue-text"></div>
+    <div class="dialogue-skip" onclick="skipDialogue()">skip ›</div>
+  </div>
+</div>
+
+<!-- ══ LOGIN UI ══ -->
+<div class="login-ui" id="login-ui" style="opacity:0;pointer-events:none;">
+
+  <div class="brand-wrap">
+    <div class="brand-skull">☠</div>
+    <div class="brand-lines">
+      <div class="brand-title">STRAW HAT</div>
+      <div class="brand-sub">GRAND LINE PERSONAL AGENT</div>
+    </div>
+  </div>
+
+  <div class="wb-speech">
+    <div class="speech-mark">"</div>
+    <div class="speech-text" id="speech-text">
+      GURARARARA...<br>prove you belong here, <em>son</em>
+    </div>
+    <div class="speech-mark closing">"</div>
+  </div>
+
+  <div class="section-divider">
+    <div class="div-line"></div>
+    <div class="div-skull">☠</div>
+    <div class="div-line"></div>
+  </div>
+
+  <!-- VOICE AUTH -->
+  <div class="voice-auth">
+    <div class="mic-outer" id="mic-outer" onclick="toggleMic()">
+      <div class="mic-ring ring-1"></div>
+      <div class="mic-ring ring-2"></div>
+      <div class="mic-core">🎤</div>
+    </div>
+    <div class="voice-label" id="voice-label">SPEAK YOUR PASSWORD</div>
+    <div class="voice-sub" id="voice-sub">voice authentication</div>
+  </div>
+
+  <!-- OR DIVIDER -->
+  <div class="or-row">
+    <div class="or-line"></div>
+    <span class="or-text">or type it</span>
+    <div class="or-line"></div>
+  </div>
+
+  <!-- TEXT PASSWORD INPUT -->
+  <div class="text-pw-wrap">
+    <input
+      id="text-password"
+      type="password"
+      class="text-pw-input"
+      placeholder="type your password here..."
+      onkeydown="if(event.key==='Enter') textLogin()"
+    />
+    <button class="text-pw-btn" onclick="textLogin()">→</button>
+  </div>
+
+  <!-- BOARD BUTTON -->
+  <button class="board-btn" onclick="boardShip()">
+    <span class="btn-icon">⚓</span>
+    <span class="btn-text">BOARD THE SHIP</span>
+    <span class="btn-arrow">→</span>
+  </button>
+
+  <div class="auth-footer">All 10 crew members standing by</div>
+
+</div>
+
+<script src="../js/login.js"></script>
+</body>
+</html>
