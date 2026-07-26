@@ -1,6 +1,8 @@
 /* ═══════════════════════════════════════
-   APP.JS — Straw Hat Agent v2
-   Clean version with dynamic features
+   APP.JS — Straw Hat Agent
+   Fixed: separate chat per crew member
+   Fixed: crew images loading
+   Fixed: chat sending working
 ═══════════════════════════════════════ */
 
 // ── BACKEND CONFIG ───────────────────────────────────────────────
@@ -9,37 +11,37 @@ const STORAGE = sessionStorage;
 
 // ── CREW DATA ────────────────────────────────────────────────────
 const CREW = {
-  luffy:   { name:'Luffy',   fullName:'Monkey D. Luffy',   color:'#e83030', emoji:'☠',  domain:'General Chat',     greet:'Shishishi! Ready to sail, praveen?' },
-  zoro:    { name:'Zoro',    fullName:'Roronoa Zoro',      color:'#30b860', emoji:'⚔',  domain:'Skills & DSA',     greet:'Nothing happened. Get back to training.' },
-  nami:    { name:'Nami',    fullName:'Nami',               color:'#e8a020', emoji:'🗺',  domain:'Career & Finance',  greet:'Let me map out your career route.' },
-  usopp:   { name:'Usopp',   fullName:'Usopp',              color:'#c87820', emoji:'🎯',  domain:'Ideas & Projects',  greet:'I, the great Usopp, have a plan!' },
-  sanji:   { name:'Sanji',   fullName:'Vinsmoke Sanji',    color:'#6060e8', emoji:'🍳',  domain:'Food & Nutrition',  greet:'A good meal fuels a great mind.' },
-  chopper: { name:'Chopper', fullName:'Tony Tony Chopper', color:'#e83070', emoji:'🩺',  domain:'Health & Wellness', greet:'How are you feeling today?' },
-  robin:   { name:'Robin',   fullName:'Nico Robin',        color:'#a060e8', emoji:'📚',  domain:'Research & Notes',  greet:'Knowledge is the most powerful weapon.' },
-  franky:  { name:'Franky',  fullName:'Franky',             color:'#20a8e8', emoji:'🔧',  domain:'Tech & Automation', greet:'SUPER! What are we building today?' },
-  brook:   { name:'Brook',   fullName:'Brook',              color:'#b0b0d8', emoji:'🎵',  domain:'Music & Mood',      greet:'Yohohoho! Music for the soul!' },
-  jinbe:   { name:'Jinbe',   fullName:'Jinbe',              color:'#2080c8', emoji:'🌊',  domain:'Schedule & Focus',  greet:'A calm helmsman makes the best voyage.' },
+  luffy:   { name:'Luffy',   fullName:'Monkey D. Luffy',   color:'#e83030', emoji:'☠',  domain:'General Chat',     greet:'Shishishi! Ready to sail, nakama?' },
+  zoro:    { name:'Zoro',    fullName:'Roronoa Zoro',      color:'#30b860', emoji:'⚔',  domain:'Skills & DSA',     greet:'Tch. Stop wasting time. What are we training today?' },
+  nami:    { name:'Nami',    fullName:'Nami',               color:'#e8a020', emoji:'🗺',  domain:'Career & Finance',  greet:'Listen carefully — I have your route planned.' },
+  usopp:   { name:'Usopp',   fullName:'Usopp',              color:'#c87820', emoji:'🎯',  domain:'Ideas & Projects',  greet:'I, the great Usopp, am ready with incredible ideas!' },
+  sanji:   { name:'Sanji',   fullName:'Vinsmoke Sanji',    color:'#6060e8', emoji:'🍳',  domain:'Food & Nutrition',  greet:'Mellorine! What can I cook up for you today?' },
+  chopper: { name:'Chopper', fullName:'Tony Tony Chopper', color:'#e83070', emoji:'🩺',  domain:'Health & Wellness', greet:'W-wait! Tell Chopper everything — I am a great doctor!' },
+  robin:   { name:'Robin',   fullName:'Nico Robin',        color:'#a060e8', emoji:'📚',  domain:'Research & Notes',  greet:'How interesting... What shall we research today?' },
+  franky:  { name:'Franky',  fullName:'Franky',             color:'#20a8e8', emoji:'🔧',  domain:'Tech & Automation', greet:'SUPER! What are we building or fixing today?!' },
+  brook:   { name:'Brook',   fullName:'Brook',              color:'#b0b0d8', emoji:'🎵',  domain:'Music & Mood',      greet:'Yohohoho! Shall I recommend something wonderful?' },
+  jinbe:   { name:'Jinbe',   fullName:'Jinbe',              color:'#2080c8', emoji:'🌊',  domain:'Schedule & Focus',  greet:'A calm helmsman charts the best course. What is your plan?' },
 };
 
-// ── FALLBACK REPLIES ─────────────────────────────────────────────
+// ── FALLBACK REPLIES (demo mode) ─────────────────────────────────
 const REPLIES = {
-  luffy:   ["Yosh! Let's do it praveen! 🏴‍☠️", "I don't know what that means but WE'LL FIGURE IT OUT!", "We're gonna make it! I promise on my crew!"],
-  zoro:    ["Focus. Train harder. Nothing happened.", "A sword only gets sharper with use. Keep going.", "Get it done. No excuses."],
-  nami:    ["Here's the financially smart move...", "Let me chart you a route to success.", "Save first. Always save first."],
-  usopp:   ["I, the great Usopp, have the PERFECT idea!", "Back in my village I did something even greater...", "Every legend starts with one brave step!"],
-  sanji:   ["Leave it to me. Nutrition is everything.", "I'll craft a plan that'll make you cry with joy.", "A great cook plans every meal like a masterpiece."],
-  chopper: ["Tell me everything! I'm a great doctor!", "Don't push too hard — your health comes first!", "Rum-bum-bum! I know exactly what you need!"],
-  robin:   ["Fascinating. The research suggests...", "History patterns repeat. Let me analyze this.", "I'll find what you need. Knowledge is power."],
-  franky:  ["SUPER! On it right now bro!", "I'll build a SUPER solution for that!", "Tech problems are just puzzles. Let's solve it!"],
-  brook:   ["Yohohoho! Here's my recommendation!", "Even a skeleton appreciates a good vibe!", "Shall I play you a song?"],
-  jinbe:   ["Let's plan this methodically. Calm focus wins.", "Read the current before you sail.", "Your schedule is your chart. Trust it."],
+  luffy:   ["Yosh! Let's do it! 🏴‍☠️", "I don't always get it but WE'LL FIGURE IT OUT!", "We're gonna make it! I promise!"],
+  zoro:    ["Focus. Train harder. Nothing happened.", "A sword gets sharper with use. Keep going.", "Get it done. No excuses."],
+  nami:    ["Here is the smart move...", "I have already charted your route to success.", "Save first. Always save first."],
+  usopp:   ["I, the great Usopp, have the PERFECT plan!", "Even I was scared at first — but you can do this!", "Every legend starts with one brave step!"],
+  sanji:   ["Leave it to me. Nutrition is everything.", "I will craft a plan that will make you cry with joy!", "A great cook plans every meal like a masterpiece."],
+  chopper: ["Tell me everything! I am a great doctor!", "Do not push too hard — your health comes first!", "I know exactly what you need!"],
+  robin:   ["Fascinating. The research suggests...", "Historical patterns repeat. Allow me to analyse.", "I will find what you need. Knowledge is power."],
+  franky:  ["SUPER! On it right now!", "I will build a SUPER solution for that!", "Tech problems are just puzzles. SUPER easy!"],
+  brook:   ["Yohohoho! Here is my recommendation!", "Even a skeleton appreciates a good vibe!", "Shall I play you a song? Yohohoho!"],
+  jinbe:   ["Let us plan this methodically. Calm focus wins.", "Read the current before you sail.", "Your schedule is your chart. Trust it."],
 };
 
 // ── KEYWORD ROUTER ───────────────────────────────────────────────
 const KEYWORDS = {
   zoro:    ['learn','skill','code','practice','study','train','improve','course','dsa','algorithm','programming','docker','system','backend','frontend'],
   nami:    ['career','job','travel','trip','money','salary','budget','interview','resume','work','finance','save','invest'],
-  usopp:   ['idea','project','creative','story','hobby','art','build','brainstorm','design','invent','side project'],
+  usopp:   ['idea','project','creative','story','hobby','art','build','brainstorm','design','invent'],
   sanji:   ['food','eat','recipe','cook','meal','breakfast','lunch','dinner','diet','nutrition','hungry','calories','protein'],
   chopper: ['health','sick','pain','tired','sleep','exercise','workout','symptom','doctor','medicine','headache','stress','mental'],
   robin:   ['research','history','notes','journal','book','read','facts','analyse','find','explain','summarise','topic'],
@@ -64,21 +66,33 @@ let activeTab  = 'dashboard';
 let isLoading  = false;
 let chatCount  = 0;
 
-
+// ── SEPARATE CHAT HISTORY PER CREW MEMBER ───────────────────────
+// Each crew member has their own array of messages
+// Cleared when app closes (session only)
 const chatHistory = {};
-Object.keys(Crew).forEach(key => { chatHistory[key]=[]; });
+Object.keys(CREW).forEach(key => { chatHistory[key] = []; });
 
 // ── AUTH CHECK ───────────────────────────────────────────────────
 (function checkAuth() {
-  const token = STORAGE.getItem('jwt');
+  let token = STORAGE.getItem('jwt');
+
+  // Also check URL param (Electron fix)
+  if (!token || token === 'demo-token') {
+    const params   = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    if (urlToken && urlToken !== 'demo-token') {
+      token = urlToken;
+      STORAGE.setItem('jwt', token);
+    }
+  }
+
   if (!token) {
     window.location.href = 'login.html';
     return;
   }
-  if (token !== 'demo-token') {
-    fetch(`${API}/health`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    }).catch(() => console.warn('Backend offline — demo mode'));
+
+  if (token === 'demo-token') {
+    console.warn('Running in demo mode — type real password to get AI responses');
   }
 })();
 
@@ -90,7 +104,7 @@ function logout() {
   setTimeout(() => { window.location.href = 'login.html'; }, 450);
 }
 
-/* ── CLOCK ── */
+// ── CLOCK ────────────────────────────────────────────────────────
 function updateClock() {
   const now  = new Date();
   const time = now.toLocaleTimeString('en-GB');
@@ -105,23 +119,17 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-/* ── DYNAMIC GREETING ── */
-// Gets a real morning greeting from Luffy via backend
+// ── DYNAMIC MORNING GREETING ─────────────────────────────────────
 async function loadMorningGreeting() {
-  const gs    = document.getElementById('greeting-sub');
+  const gs   = document.getElementById('greeting-sub');
+  const hour = new Date().getHours();
+  let fallback = 'Shishishi! Ready to sail?';
+  if (hour < 12)      fallback = 'Shishishi! Good morning! What adventure awaits?!';
+  else if (hour < 17) fallback = 'Shishishi! Good afternoon! Do not slack off!';
+  else                fallback = 'Shishishi! Good evening! Rest up for tomorrow!';
+  if (gs) gs.textContent = fallback;
+
   const token = STORAGE.getItem('jwt');
-  const hour  = new Date().getHours();
-
-  // Time-based fallback greeting
-  let timeGreet = 'Shishishi! Ready to sail, praveen?'
-  if (hour < 12) timeGreet = "Shishishi! Good morning praveen! What adventure awaits today?!"
-  else if (hour < 17) timeGreet = "Shishishi! Good afternoon praveen! Don't slack off!"
-  else timeGreet = "Shishishi! Good evening praveen! Rest up for tomorrow's adventure!"
-
-  // Show fallback immediately
-  if (gs) gs.textContent = timeGreet;
-
-  // Try to get a real AI greeting from backend
   if (!token || token === 'demo-token') return;
 
   try {
@@ -132,7 +140,7 @@ async function loadMorningGreeting() {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
-        message:   'Give me a short one-sentence morning greeting in your character voice. Maximum 15 words.',
+        message:   'Give me a short one sentence morning greeting in your character voice. Maximum 15 words.',
         character: 'luffy'
       })
     });
@@ -141,36 +149,32 @@ async function loadMorningGreeting() {
       if (gs && data.reply) gs.textContent = data.reply;
     }
   } catch (e) {
-    console.warn('Greeting fetch failed — using fallback');
+    // Keep fallback
   }
 }
 
-/* ── STATS — stored in localStorage ── */
-// These persist across sessions
+// ── STATS ────────────────────────────────────────────────────────
 function loadStats() {
   const today     = new Date().toDateString();
   const lastVisit = localStorage.getItem('sh_last_visit');
   let   streak    = parseInt(localStorage.getItem('sh_streak') || '0');
 
-  // Update streak
   if (lastVisit !== today) {
     const yesterday = new Date(Date.now() - 86400000).toDateString();
-    if (lastVisit === yesterday) streak++; // consecutive day
-    else if (!lastVisit) streak = 1;       // first time
-    else streak = 1;                       // broke streak
+    if (lastVisit === yesterday) streak++;
+    else if (!lastVisit) streak = 1;
+    else streak = 1;
     localStorage.setItem('sh_streak', streak);
     localStorage.setItem('sh_last_visit', today);
   }
 
-  // Reset chat count for today
-  const savedDate  = localStorage.getItem('sh_chat_date');
+  const savedDate = localStorage.getItem('sh_chat_date');
   if (savedDate !== today) {
     localStorage.setItem('sh_chat_count', '0');
     localStorage.setItem('sh_chat_date', today);
   }
   chatCount = parseInt(localStorage.getItem('sh_chat_count') || '0');
 
-  // Update UI
   const sv = document.getElementById('stat-streak');
   const tv = document.getElementById('stat-tasks');
   if (sv) sv.textContent = streak;
@@ -184,14 +188,15 @@ function incrementChatCount() {
   if (tv) tv.textContent = chatCount;
 }
 
-/* ── RAG STATUS CHECK ── */
+// ── RAG STATUS ───────────────────────────────────────────────────
 async function checkRagStatus() {
   const token = STORAGE.getItem('jwt');
+  const ids   = ['kb-about','kb-career','kb-skills','kb-schedule','kb-health'];
+
   if (!token || token === 'demo-token') {
-    // Show all as not loaded in demo mode
-    ['kb-about','kb-career','kb-skills','kb-schedule','kb-health'].forEach(id => {
+    ids.forEach(id => {
       const el = document.getElementById(id);
-      if (el) { el.textContent = 'Demo mode'; el.className = 'kb-bd empty'; }
+      if (el) { el.textContent = 'Demo'; el.className = 'kb-bd empty'; }
     });
     return;
   }
@@ -204,32 +209,34 @@ async function checkRagStatus() {
       const data = await res.json();
       const cls  = data.rag_enabled ? 'kb-bd loaded' : 'kb-bd empty';
       const txt  = data.rag_enabled ? 'Loaded'       : 'Empty';
-      ['kb-about','kb-career','kb-skills','kb-schedule','kb-health'].forEach(id => {
+      ids.forEach(id => {
         const el = document.getElementById(id);
         if (el) { el.textContent = txt; el.className = cls; }
       });
     }
   } catch (e) {
-    ['kb-about','kb-career','kb-skills','kb-schedule','kb-health'].forEach(id => {
+    ids.forEach(id => {
       const el = document.getElementById(id);
       if (el) { el.textContent = 'Offline'; el.className = 'kb-bd empty'; }
     });
   }
 }
 
-/* ── BUILD CREW GRID ── */
+// ── BUILD CREW GRID ──────────────────────────────────────────────
 function buildCrewGrid(containerId) {
   const el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = '';
   Object.entries(CREW).forEach(([key, c]) => {
+    const isActive  = key === activeCrew;
     const div       = document.createElement('div');
-    div.className   = 'crew-member' + (key === activeCrew ? ' active' : '');
+    div.className   = 'crew-member' + (isActive ? ' active' : '');
     div.id          = 'cm-' + containerId + '-' + key;
     div.onclick     = () => selectCrew(key);
-    const isActive  = key === activeCrew;
     div.innerHTML   = `
-      <div class="cm-avatar" style="${isActive ? 'border-color:'+c.color+';box-shadow:0 0 14px '+c.color+'40' : ''}">
+      <div class="cm-avatar" style="${isActive
+        ? 'border-color:'+c.color+';box-shadow:0 0 14px '+c.color+'40'
+        : ''}">
         ${c.emoji}
       </div>
       <div class="cm-name">${c.name}</div>`;
@@ -237,137 +244,68 @@ function buildCrewGrid(containerId) {
   });
 }
 
-/* ── BUILD CHAT STRIP ── */
+// ── BUILD CHAT STRIP ─────────────────────────────────────────────
 function buildChatStrip() {
   const strip = document.getElementById('chat-crew-strip');
   if (!strip) return;
   strip.innerHTML = '';
   Object.entries(CREW).forEach(([key, c]) => {
+    const isActive   = key === activeCrew;
     const pill       = document.createElement('div');
-    pill.className   = 'cc-pill' + (key === activeCrew ? ' active' : '');
+    pill.className   = 'cc-pill' + (isActive ? ' active' : '');
     pill.id          = 'ccp-' + key;
-    pill.style.cssText = key === activeCrew
-      ? `background:${c.color}22;border-color:${c.color}60;color:${c.color}`
-      : '';
-    pill.onclick     = () => selectCrew(key);
-    pill.innerHTML   = `<span class="cc-dot" style="background:${c.color}"></span>${c.name}`;
+    if (isActive) {
+      pill.style.cssText = `background:${c.color}22;border-color:${c.color}60;color:${c.color}`;
+    }
+    pill.onclick = () => selectCrew(key);
+    pill.innerHTML = `<span class="cc-dot" style="background:${c.color}"></span>${c.name}`;
     strip.appendChild(pill);
   });
 }
 
-/* ── SELECT CREW ── */
+// ── SELECT CREW ──────────────────────────────────────────────────
 function selectCrew(key) {
-  if (key === activeCrew) return;
+  if (key === activeCrew) {
+    // Already active — just switch to chat tab
+    switchTab('chat');
+    return;
+  }
+
   activeCrew = key;
-  const c = CREW[key];
+  const c    = CREW[key];
 
   // Update greeting bar
   const gav = document.getElementById('greeting-avatar');
   const gt  = document.getElementById('greeting-title');
   const gs  = document.getElementById('greeting-sub');
   if (gav) {
-    gav.textContent      = c.emoji;
-    gav.style.borderColor= c.color;
-    gav.style.boxShadow  = `0 0 12px ${c.color}50`;
+    gav.textContent       = c.emoji;
+    gav.style.borderColor = c.color;
+    gav.style.boxShadow   = `0 0 12px ${c.color}50`;
   }
-  if (gt) gt.textContent  = 'Good morning, Praveen!';
-  if (gs) {
-    gs.textContent    = c.greet;
-    gs.style.color    = c.color;
-  }
+  if (gt) gt.textContent = 'Good morning, Nakama!';
+  if (gs) { gs.textContent = c.greet; gs.style.color = c.color; }
 
-  // Update accent
+  // Update accent colour
   document.documentElement.style.setProperty('--accent', c.color);
 
-  // Update send button
+  // Update send button colour
   const sb = document.getElementById('ib-send');
   if (sb) sb.style.background = c.color;
 
-  // Rebuild grids
+  // Rebuild crew UI
   buildCrewGrid('crew-grid');
   buildChatStrip();
 
-  // Add greeting message + switch to chat
- 
-  switchTab('chat');
-  renderChatHistory(key);
-
   // Update character panel
   updateCharPanel(key);
+
+  // Switch to chat and render THIS crew's separate history
+  switchTab('chat');
+  renderChatHistory(key);
 }
 
-/* ── SWITCH VIEW (sidebar) ── */
-function switchView(view) {
-  document.querySelectorAll('.sb-icon').forEach(b => b.classList.remove('active'));
-  document.getElementById('sbi-' + view)?.classList.add('active');
-  switchTab(view);
-}
-
-/* ── SWITCH TAB ── */
-function switchTab(tab) {
-  activeTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab)?.classList.add('active');
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + tab)?.classList.add('active');
-  document.querySelectorAll('.sb-icon').forEach(b => b.classList.remove('active'));
-  document.getElementById('sbi-' + tab)?.classList.add('active');
-  if (tab === 'chat') {
-     buildChatStrip();
-     renderChatHistory(activeCrew);
-  } 
-}
-
-/* ── QUICK ACTION ── */
-function quickAction(tab, crewKey) {
-  if (crewKey && crewKey !== activeCrew) selectCrew(crewKey);
-  switchTab(tab);
-}
-
-/* ── CHAT HELPERS ── */
-function addCrewMsg(name, text, emoji, color) {
-  const msgs = document.getElementById('chat-msgs');
-  if (!msgs) return;
-  
-  chatHistory[activeCrew].push({
-     type: 'crew', name,text,emoji,color
-  });
-
-  const div       = document.createElement('div');
-  div.className   = 'msg crew-msg';
-  div.innerHTML   = `
-    <div class="msg-av" style="border-color:${color}60">${emoji}</div>
-    <div class="msg-body">
-      <div class="msg-name" style="color:${color}">${name}</div>
-      <div class="bubble">${text}</div>
-    </div>`;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function addUserMsg(text) {
-  const msgs = document.getElementById('chat-msgs');
-  if (!msgs) return;
-  const c         = CREW[activeCrew];
-
-  //Save to this crew memers history
-  chatHistory[activeCrew].push({
-    type: 'user',text,color:c.color
-  });
-
-  const div       = document.createElement('div');
-  div.className   = 'msg user-msg';
-  div.innerHTML   = `
-    <div class="msg-av" style="border-color:${c.color}40">👤</div>
-    <div class="msg-body">
-      <div class="msg-name">You</div>
-      <div class="bubble">${escHtml(text)}</div>
-    </div>`;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-
+// ── RENDER CHAT HISTORY FOR A CREW MEMBER ───────────────────────
 function renderChatHistory(crewKey) {
   const msgs = document.getElementById('chat-msgs');
   if (!msgs) return;
@@ -378,54 +316,78 @@ function renderChatHistory(crewKey) {
   const history = chatHistory[crewKey] || [];
 
   if (history.length === 0) {
-    // No history yet — show greeting
-    const c   = CREW[crewKey];
-    const div = document.createElement('div');
-    div.className = 'msg crew-msg';
-    div.innerHTML = `
-      <div class="msg-av" style="border-color:${c.color}60">${c.emoji}</div>
-      <div class="msg-body">
-        <div class="msg-name" style="color:${c.color}">${c.name}</div>
-        <div class="bubble">${c.greet}</div>
-      </div>`;
-    msgs.appendChild(div);
-    // Save greeting to history too
+    // No messages yet — show this crew member's greeting
+    const c = CREW[crewKey];
+    _appendCrewBubble(msgs, c.name, c.greet, c.emoji, c.color);
+    // Save greeting to their history
     chatHistory[crewKey].push({
-      type: 'crew',
-      name:  c.name,
-      text:  c.greet,
-      emoji: c.emoji,
-      color: c.color
+      type: 'crew', name: c.name, text: c.greet, emoji: c.emoji, color: c.color
     });
     return;
   }
 
-  // Render existing history
+  // Render all saved messages
   history.forEach(msg => {
-    const div = document.createElement('div');
     if (msg.type === 'crew') {
-      div.className = 'msg crew-msg';
-      div.innerHTML = `
-        <div class="msg-av" style="border-color:${msg.color}60">${msg.emoji}</div>
-        <div class="msg-body">
-          <div class="msg-name" style="color:${msg.color}">${msg.name}</div>
-          <div class="bubble">${msg.text}</div>
-        </div>`;
+      _appendCrewBubble(msgs, msg.name, msg.text, msg.emoji, msg.color);
     } else {
-      div.className = 'msg user-msg';
-      div.innerHTML = `
-        <div class="msg-av" style="border-color:${msg.color}40">👤</div>
-        <div class="msg-body">
-          <div class="msg-name">You</div>
-          <div class="bubble">${escHtml(msg.text)}</div>
-        </div>`;
+      _appendUserBubble(msgs, msg.text, msg.color);
     }
-    msgs.appendChild(div);
   });
 
   msgs.scrollTop = msgs.scrollHeight;
 }
 
+// ── PRIVATE BUBBLE RENDERERS ─────────────────────────────────────
+function _appendCrewBubble(msgs, name, text, emoji, color) {
+  const div     = document.createElement('div');
+  div.className = 'msg crew-msg';
+  div.innerHTML = `
+    <div class="msg-av" style="border-color:${color}60">${emoji}</div>
+    <div class="msg-body">
+      <div class="msg-name" style="color:${color}">${name}</div>
+      <div class="bubble">${text}</div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function _appendUserBubble(msgs, text, color) {
+  const div     = document.createElement('div');
+  div.className = 'msg user-msg';
+  div.innerHTML = `
+    <div class="msg-av" style="border-color:${color}40">👤</div>
+    <div class="msg-body">
+      <div class="msg-name">You</div>
+      <div class="bubble">${escHtml(text)}</div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ── ADD MESSAGES (saves to history + renders) ────────────────────
+function addCrewMsg(name, text, emoji, color) {
+  // Save to this crew member's history
+  chatHistory[activeCrew].push({
+    type: 'crew', name, text, emoji, color
+  });
+  const msgs = document.getElementById('chat-msgs');
+  if (!msgs) return;
+  _appendCrewBubble(msgs, name, text, emoji, color);
+}
+
+function addUserMsg(text) {
+  const c = CREW[activeCrew];
+  // Save to this crew member's history
+  chatHistory[activeCrew].push({
+    type: 'user', text, color: c.color
+  });
+  const msgs = document.getElementById('chat-msgs');
+  if (!msgs) return;
+  _appendUserBubble(msgs, text, c.color);
+}
+
+// ── TYPING INDICATOR ─────────────────────────────────────────────
 function showTyping() {
   const msgs = document.getElementById('chat-msgs');
   if (!msgs || document.getElementById('typing')) return;
@@ -447,32 +409,43 @@ function showTyping() {
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-function hideTyping() { document.getElementById('typing')?.remove(); }
+function hideTyping() {
+  document.getElementById('typing')?.remove();
+}
 
-/* ── SEND MESSAGE ── */
+// ── SEND MESSAGE ─────────────────────────────────────────────────
 async function ibSend() {
   if (isLoading) return;
+
   const inp = document.getElementById('ib-input');
+  if (!inp) return;
   const val = inp.value.trim();
   if (!val) return;
 
+  // Switch to chat view first
   switchTab('chat');
-  addUserMsg(val);
-  inp.value = '';
 
-  // Auto-route
+  // Auto-route BEFORE adding user message
   const routed = autoRoute(val);
   if (routed !== activeCrew) {
-    activeCrew     = routed;
-    const c        = CREW[routed];
+    // Switch crew silently (no greeting — just switch)
+    activeCrew = routed;
+    const c    = CREW[routed];
     document.documentElement.style.setProperty('--accent', c.color);
-    const sb       = document.getElementById('ib-send');
+    const sb   = document.getElementById('ib-send');
     if (sb) sb.style.background = c.color;
     buildCrewGrid('crew-grid');
     buildChatStrip();
     updateCharPanel(routed);
+    // Render new crew's history first
+    renderChatHistory(routed);
   }
 
+  // Now add user message and clear input
+  addUserMsg(val);
+  inp.value = '';
+
+  // Show typing + start loading
   showTyping();
   isLoading = true;
   incrementChatCount();
@@ -481,6 +454,7 @@ async function ibSend() {
   const c     = CREW[activeCrew];
 
   try {
+    // ── DEMO MODE ──────────────────────────────────────────────
     if (!token || token === 'demo-token') {
       await sleep(800 + Math.random() * 600);
       hideTyping();
@@ -489,20 +463,24 @@ async function ibSend() {
       addCrewMsg(
         c.name,
         pool[Math.floor(Math.random() * pool.length)] +
-          ' <em style="font-size:11px;opacity:0.4">(demo)</em>',
-        c.emoji, c.color
+          ' <em style="font-size:11px;opacity:0.4">(demo — type real password to get AI)</em>',
+        c.emoji,
+        c.color
       );
       return;
     }
 
-    // Real backend call
+    // ── REAL BACKEND CALL ──────────────────────────────────────
     const res = await fetch(`${API}/chat`, {
       method:  'POST',
       headers: {
         'Content-Type':  'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ message: val, character: activeCrew })
+      body: JSON.stringify({
+        message:   val,
+        character: activeCrew
+      })
     });
 
     hideTyping();
@@ -522,14 +500,16 @@ async function ibSend() {
         buildCrewGrid('crew-grid');
         buildChatStrip();
         updateCharPanel(charId);
+        renderChatHistory(charId);
         addCrewMsg(newC.name, data.reply, newC.emoji, newC.color);
       } else {
         addCrewMsg(c.name, data.reply, c.emoji, c.color);
       }
 
     } else if (res.status === 401) {
-      addCrewMsg('System', '⚠ Session expired — redirecting...', '⚠', '#e83030');
+      addCrewMsg('System', '⚠ Session expired — redirecting to login...', '⚠', '#e83030');
       setTimeout(() => { STORAGE.clear(); window.location.href = 'login.html'; }, 2000);
+
     } else {
       const err = await res.json().catch(() => ({}));
       addCrewMsg(c.name, `Something went wrong... ${err.detail || ''}`, c.emoji, c.color);
@@ -539,23 +519,27 @@ async function ibSend() {
     console.error('Chat error:', err);
     hideTyping();
     isLoading = false;
+    // Fallback reply when backend offline
     const pool = REPLIES[activeCrew];
     addCrewMsg(
       c.name,
       pool[Math.floor(Math.random() * pool.length)] +
         ' <em style="font-size:11px;opacity:0.4">(offline)</em>',
-      c.emoji, c.color
+      c.emoji,
+      c.color
     );
   }
 }
 
-/* ── INPUT HANDLERS ── */
-function ibKey(e) { if (e.key === 'Enter' && !e.shiftKey) ibSend(); }
+// ── INPUT HANDLERS ───────────────────────────────────────────────
+function ibKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) ibSend();
+}
 
-/* ── MIC INPUT ── */
+// ── MIC INPUT ────────────────────────────────────────────────────
 function ibMic() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { alert('Voice input not supported'); return; }
+  if (!SR) { alert('Voice input not supported in this browser'); return; }
 
   const mic = document.querySelector('.ib-mic');
   if (mic) mic.textContent = '🔴';
@@ -574,7 +558,6 @@ function ibMic() {
   recog.onerror = () => { if (mic) mic.textContent = '🎤'; };
   recog.onend   = () => { if (mic) mic.textContent = '🎤'; };
 
-  // Request mic permission first
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(() => recog.start())
     .catch(() => {
@@ -583,7 +566,39 @@ function ibMic() {
     });
 }
 
-/* ── UPDATE CHARACTER PANEL ── */
+// ── SWITCH VIEW (sidebar click) ──────────────────────────────────
+function switchView(view) {
+  document.querySelectorAll('.sb-icon').forEach(b => b.classList.remove('active'));
+  document.getElementById('sbi-' + view)?.classList.add('active');
+  switchTab(view);
+}
+
+// ── SWITCH TAB ───────────────────────────────────────────────────
+function switchTab(tab) {
+  activeTab = tab;
+
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab)?.classList.add('active');
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab)?.classList.add('active');
+
+  document.querySelectorAll('.sb-icon').forEach(b => b.classList.remove('active'));
+  document.getElementById('sbi-' + tab)?.classList.add('active');
+
+  if (tab === 'chat') {
+    buildChatStrip();
+    renderChatHistory(activeCrew);
+  }
+}
+
+// ── QUICK ACTION ─────────────────────────────────────────────────
+function quickAction(tab, crewKey) {
+  if (crewKey && crewKey !== activeCrew) selectCrew(crewKey);
+  else switchTab(tab);
+}
+
+// ── UPDATE CHARACTER PANEL ───────────────────────────────────────
 function updateCharPanel(key) {
   const c       = CREW[key];
   const wrap    = document.getElementById('ccf-img');
@@ -597,70 +612,105 @@ function updateCharPanel(key) {
     nameEl.style.color      = c.color;
     nameEl.style.textShadow = `0 0 10px ${c.color}`;
   }
+
   if (glow) {
-    glow.style.background = `radial-gradient(ellipse at 50% 100%, ${c.color} -20%, transparent 65%)`;
+    glow.style.background =
+      `radial-gradient(ellipse at 50% 100%, ${c.color} -20%, transparent 65%)`;
   }
+
   document.documentElement.style.setProperty('--accent', c.color);
 
-  // Try loading PNG
-  const imgPath = `../assets/${key}.png`;
-  let img       = wrap.querySelector('img');
-  if (!img) { img = document.createElement('img'); wrap.appendChild(img); }
+  // Show emoji fallback immediately
+  if (emojiEl) {
+    emojiEl.textContent = c.emoji;
+    emojiEl.style.opacity = '1';
+  }
 
-  img.style.opacity = '0';
-  img.alt           = c.name;
+  // Try loading PNG image
+  const imgPath = `../assets/${key}.png`;
+  let img = wrap.querySelector('img');
+
+  if (!img) {
+    img = document.createElement('img');
+    img.style.cssText = `
+      position:absolute;
+      bottom:0;
+      left:50%;
+      transform:translateX(-50%);
+      max-height:100%;
+      max-width:100%;
+      object-fit:contain;
+      object-position:bottom;
+      opacity:0;
+      transition:opacity 0.3s;
+    `;
+    wrap.appendChild(img);
+  }
+
+  img.alt = c.name;
 
   img.onload = () => {
+    // Image loaded — hide emoji, show image
     if (emojiEl) emojiEl.style.opacity = '0';
     img.style.opacity = '1';
+    img.style.display = 'block';
+    // Walk-in animation
     img.classList.remove('walkin');
     void img.offsetWidth;
     img.classList.add('walkin');
   };
 
   img.onerror = () => {
+    // No image found — show emoji fallback
     img.style.display = 'none';
-    if (emojiEl) { emojiEl.style.opacity = '1'; emojiEl.textContent = c.emoji; }
+    if (emojiEl) {
+      emojiEl.style.opacity = '1';
+      emojiEl.textContent   = c.emoji;
+    }
   };
 
   img.style.display = 'block';
-  img.src           = imgPath;
-  if (emojiEl) emojiEl.textContent = c.emoji;
+  img.src = imgPath + '?v=' + Date.now(); // cache bust
 }
 
-/* ── UTILS ── */
-function sleep(ms)    { return new Promise(r => setTimeout(r, ms)); }
+// ── UTILITIES ────────────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
 function escHtml(str) {
+  if (!str) return '';
   return str
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
-/* ── INIT ── */
+// ── INIT ─────────────────────────────────────────────────────────
 (function init() {
-  // Build crew grid
+  // Build crew grid on dashboard
   buildCrewGrid('crew-grid');
+
+  // Build chat crew strip
   buildChatStrip();
 
-  // Set send button color
+  // Set initial send button colour
   const sb = document.getElementById('ib-send');
   if (sb) sb.style.background = CREW[activeCrew].color;
 
-  // Init character panel
+  // Load character panel for Luffy
   updateCharPanel(activeCrew);
 
-  // Load stats from localStorage
+  // Load persistent stats
   loadStats();
 
-  // Dynamic morning greeting from backend
+  // Get dynamic morning greeting from backend
   loadMorningGreeting();
 
   // Check RAG status
   checkRagStatus();
 
-  // Initial greeting message in chat
+  // Render Luffy's initial greeting in chat
   setTimeout(() => {
     renderChatHistory(activeCrew);
   }, 300);
 })();
-
